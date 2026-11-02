@@ -16,11 +16,11 @@ import suleman.example.repo.EmployeeRepo;
 public class EmployeeService {
 	
 	private final EmployeeRepo employeerepo;
-	private final AiService aiservice;
-	public EmployeeService(EmployeeRepo employeerepo, AiService aiservice) {
+	
+
+	public EmployeeService(EmployeeRepo employeerepo) {
 		super();
 		this.employeerepo = employeerepo;
-		this.aiservice = aiservice;
 	}
 
 	public EmployeeResponseDto createEmployee(EmployeeRequestDto request) {
@@ -45,12 +45,6 @@ public class EmployeeService {
 		Page<Employee> all = employeerepo.findAll(pageable);
 		Page<EmployeeResponseDto> response = all.map(EmployeeResponseDto::new);
 		return response;
-	}
-	
-	public String getEmployeeById(int id) {
-		
-		Employee emp = employeerepo.findById(id).orElseThrow(() -> new  EmployeeNotFoundException("Employee Dose not Exist with this id: " + id));
-		return aiservice.genrateEmployeeSummary(emp);
 	}
 	
 	
@@ -120,23 +114,14 @@ public class EmployeeService {
 //	Searching and filtering start here only
 	
 	
-	public Page<EmployeeResponseDto> findEmployeesByDepartment(String department , Pageable pageable) {
+	public Page<EmployeeResponseDto> findEmployeesByNameSalaryDepartment(String name , Double salary , String department , Pageable pageable) {
+		Page<Employee> employeeByNameSalaryDepartment = employeerepo.findEmployeeByNameSalaryDepartment(name, salary, department, pageable);
+		Page<EmployeeResponseDto> employeedata = employeeByNameSalaryDepartment.map(EmployeeResponseDto::new);
+		return  employeedata;
 		
-		Page<Employee> byDepartment = employeerepo.findByDepartment(department, pageable);
-		Page<EmployeeResponseDto> response = byDepartment.map(EmployeeResponseDto:: new);
-		return response;
+		
 		
 	}
 	
-	public Page<EmployeeResponseDto> findEmployeesByName(String name , Pageable pageable) {
-		Page<Employee> byNameContaining = employeerepo.findByNameContaining(name, pageable);
-		Page<EmployeeResponseDto> response = byNameContaining.map(EmployeeResponseDto::new);
-		return response;
-	}
 	
-	public Page<EmployeeResponseDto> findEmployeesBySalaryRange(double minSalary , double maxSalary , Pageable pageable){
-		Page<Employee> bySalaryBetween = employeerepo.findBySalaryBetween(minSalary, maxSalary, pageable);
-		Page<EmployeeResponseDto> response = bySalaryBetween.map(EmployeeResponseDto::new);
-		return response;
-	}
 }

@@ -2,6 +2,7 @@ package suleman.example.controller;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
@@ -71,12 +71,7 @@ public class EmployeeController {
 	        description = "Employee not found"
 	    )
 	})
-	@GetMapping("/employees/{id}")
-	public ResponseEntity<String> getEmpByID(@PathVariable int id){
-		
-		String summary = employeeservice.getEmployeeById(id);
-		return ResponseEntity.ok(summary);
-	}
+
 	
 	@PutMapping("/employees/{id}")
 	public ResponseEntity<EmployeeResponseDto> updateEmp(@Valid @RequestBody EmployeeRequestDto dto , @PathVariable int id){
@@ -97,33 +92,18 @@ public class EmployeeController {
 		
 	}
 	
-	@GetMapping("/employees/department/{department}")
-	public Page<EmployeeResponseDto> getEmployeeByDepartmentName(@PathVariable String department , Pageable pageable){
-		Page<EmployeeResponseDto> employeByDepatment = employeeservice.findEmployeesByDepartment(department, pageable);
-		return employeByDepatment;
-	}
 	
-	
-	@Operation(
-		    summary = "Search employees by name",
-		    description = "Search employees using name"
-		)
 	@GetMapping("/employees/search")
-	public Page<EmployeeResponseDto> getEmployeeByNamelikeOperater(@RequestParam  String name , Pageable pageable){
-		Page<EmployeeResponseDto> searchEmployeeUsingLikeOperator = employeeservice.findEmployeesByName(name, pageable);
-		return searchEmployeeUsingLikeOperator;
+	public Page<EmployeeResponseDto> getEmployeeByNameSalaryAndDepartment(
+			@RequestParam(required = false) String name ,
+			@RequestParam(required = false) Double salary, 
+			@RequestParam(required = false) String department, 
+			@PageableDefault(size = 10 , sort = "id") Pageable pageable){
+		Page<EmployeeResponseDto> employeesByNameSalaryDepartment = employeeservice.findEmployeesByNameSalaryDepartment(name, salary, department, pageable);
+		return  employeesByNameSalaryDepartment;
 	}
 	
-	@Operation(
-		    summary = "Filter employees by salary range",
-		    description = "Returns employees whose salary falls between minimum and maximum salary"
-		)
 	
-	@GetMapping("/employees/filter")
-	public Page<EmployeeResponseDto> getEmployeeBySlararange(@RequestParam double minSalary , @RequestParam double maxSalary , Pageable pageable){
-		Page<EmployeeResponseDto> employeeBasedOnSalaryRange = employeeservice.findEmployeesBySalaryRange(minSalary, maxSalary, pageable);
-		return employeeBasedOnSalaryRange;
-	}
 	
 
 }
